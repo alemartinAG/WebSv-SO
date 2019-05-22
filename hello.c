@@ -4,7 +4,7 @@
 
 int main(void) {
 	
-	printf("Content-type: text/html\n\n");
+	printf("Content-type: text/html; charset=UTF-8\n\n");
 	printf("<html>\n");
 
 	printf("<head>\n");
@@ -49,7 +49,21 @@ int main(void) {
 	/* Obtengo meminfo */
 	printf("<h4> -CPU- </h4>\n");
 	printf("<p>");
-		printf("CPU USAGE ACA\n");
+
+	    system("ps -A --format %cpu > ps.txt");
+		
+		fp = fopen("/home/pi/Desktop/TP2/ps.txt", "r");
+		if(fp == NULL){
+			printf("ES NULO WACHOOOO\n");
+		}
+		else{
+			fread(buff, 3500, 1, fp);
+			fclose(fp);
+			system("rm ps.txt");
+
+			printf("%s\n", buff);
+		}
+	
 	printf("</p>\n");
 	
 
