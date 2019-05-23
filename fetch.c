@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+
+#define SIZE 2048
 
 int main(void) {
 
-	int year, day;
+	int year, day, hour;
 	char *data;
 	bool valid = true;
 
@@ -18,12 +21,12 @@ int main(void) {
 	}
 	else{
 		// Chequeo que sean numeros
-		if(sscanf(data,"ano=%d&dia=%d",&year,&day)!=2){
+		if(sscanf(data,"ano=%d&dia=%d&hora=%d", &year, &day, &hour) != 3){
 			valid = false;
 		}
 
 		//Chequeo límites
-		if(day < 0 || day > 365 || year < 1900){
+		if(day < 1 || day > 365 || hour < 0 || hour > 23){
 			valid = false;
 		}
 	}
@@ -51,15 +54,33 @@ int main(void) {
 		printf("<body>\n");
 
 		printf("<h1>Archivos disponibles de Goes 16 en AWS</h1>\n");
+
+		char * command;
+		command = calloc(256, sizeof(char));
+		strcpy(command, "echo nein");
+		snprintf(command, 250, "aws s3 ls noaa-goes16/ABI-L2-CMIPF/%d/%03d/02/ > list.txt", year, day);
+		system(command);
+
+		free(command);
+
+		char buffer[SIZE];
+
+		FILE *fp;
+		fp = fopen("list.txt", "r");
+		fread(buffer, SIZE, 1, fp);
+		fclose(fp);
+		system("rm list.txt");
+
+		printf("<p>%s</p>\n", buffer);
 	
 		/* Lista Ordenada */
-		printf("<ol>\n");
+		/*printf("<ol>\n");
 
 			for(int i=0; i<10; i++){
 				printf("<li>%d-%d-archivo</li>\n", year, day);
 			}
 
-		printf("</ol>\n");
+		printf("</ol>\n");*/
 
 		printf("</body>\n");
  	}

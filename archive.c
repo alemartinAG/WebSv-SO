@@ -15,7 +15,8 @@ int main(void) {
 
 	printf("<form action=\"fetch.cgi\">\n");
 		printf("<div><label>Año: <input name=\"ano\" size=\"5\"></label></div>\n");
-		printf("<div><label>Día Juliano: <input name=\"dia\" size=\"5\"></label></div>\n");
+		printf("<div><label>Día: <input name=\"dia\" size=\"5\"></label></div>\n");
+		printf("<div><label>Hora: <input name=\"hora\" size=\"5\"></label></div>\n");
 		printf("<div><input type=\"submit\" value=\"Buscar\"></div>\n");
 	printf("</form>\n");
 

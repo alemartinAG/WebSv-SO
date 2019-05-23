@@ -20,7 +20,7 @@ int main(void) {
 
 		system("lsmod > lsmod.txt");
 
-		printf("<p style=\"font-size:110%;\"><b>");
+		printf("<p style=\"font-size:110%%;\"><b>");
 		printf("<span style=\"display:inline-block; width: 200;\">Module</span>");
 		printf("<span style=\"display:inline-block; width: 200;\">Size</span>");
 		printf("<span style=\"display:inline-block; width: 200;\">Used</span>");
