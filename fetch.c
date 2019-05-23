@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "chtoli.h"
+
 #define SIZE 2048
 
 int main(void) {
@@ -71,16 +73,20 @@ int main(void) {
 		fclose(fp);
 		system("rm list.txt");
 
-		printf("<p>%s</p>\n", buffer);
-	
-		/* Lista Ordenada */
-		/*printf("<ol>\n");
+		//printf("<p>%s</p>\n", buffer);
 
-			for(int i=0; i<10; i++){
-				printf("<li>%d-%d-archivo</li>\n", year, day);
-			}
+		char * token;
 
-		printf("</ol>\n");*/
+		token = strtok(buffer, "\n");
+
+		printf("<ul>\n");
+		while(token != NULL){
+			printf("<li style=\"margin-bottom:10; margin-top:10\">%s</li>\n", token);
+			token = strtok(NULL, "\n");
+		}
+		printf("</ul>\n");
+
+		//chunkToList(buffer, "\n", " ");
 
 		printf("</body>\n");
  	}
