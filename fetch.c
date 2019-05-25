@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "chtoli.h"
-
 #define SIZE 2048
 
 int main(void) {
@@ -85,8 +83,6 @@ int main(void) {
 			token = strtok(NULL, "\n");
 		}
 		printf("</ul>\n");
-
-		//chunkToList(buffer, "\n", " ");
 
 		printf("</body>\n");
  	}
