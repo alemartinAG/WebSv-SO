@@ -64,9 +64,9 @@ int main(void) {
    			int index = 0;
    			while(token2 != NULL){
    				//printf("<span style=\"display:inline-block; width: 200;\">|%s|</span>", token2);
-   				strcat(line, "<span style=\"display:inline-block; width: 200; margin-top: 5; margin-bottom: 5;\">|");
+   				strcat(line, "<span style=\"display:inline-block; width: 200; margin-top: 5; margin-bottom: 5;\">");
    				strcat(line, token2);
-   				strcat(line, "|</span>");
+   				strcat(line, "</span>");
 
    				token2 = strtok_r(NULL, " ", &end_token);
    				index++;

@@ -7,7 +7,7 @@
 
 int main(void) {
 
-	int year, day, hour;
+	int year, day;
 	char *data;
 	bool valid = true;
 
@@ -21,12 +21,12 @@ int main(void) {
 	}
 	else{
 		// Chequeo que sean numeros
-		if(sscanf(data,"ano=%d&dia=%d&hora=%d", &year, &day, &hour) != 3){
+		if(sscanf(data,"ano=%d&dia=%d", &year, &day) != 2){
 			valid = false;
 		}
 
 		//Chequeo límites
-		if(day < 1 || day > 365 || hour < 0 || hour > 23){
+		if(day < 1 || day > 365){
 			valid = false;
 		}
 	}
@@ -53,12 +53,12 @@ int main(void) {
 
 		printf("<body>\n");
 
-		printf("<h1>Archivos disponibles de Goes 16 en AWS</h1>\n");
+		//printf("<h1>Archivos disponibles de Goes 16 en AWS</h1>\n");
 
 		char * command;
 		command = calloc(256, sizeof(char));
 		strcpy(command, "echo nein");
-		snprintf(command, 250, "aws s3 ls noaa-goes16/ABI-L2-CMIPF/%d/%03d/02/ > list.txt", year, day);
+		snprintf(command, 250, "aws s3 ls --recursive noaa-goes16/ABI-L2-CMIPF/%d/%03d/ | grep M3C13 > list.txt", year, day);
 		system(command);
 
 		free(command);
@@ -77,12 +77,26 @@ int main(void) {
 
 		token = strtok(buffer, "\n");
 
-		printf("<ul>\n");
+		int odd = 1;
+		printf("<div style=\"margin-right:15%; margin-left:20px\">\n");
+		printf("<p style=\"font-size:140%%; background-color:#041d04bf; margin:0; padding:12; color:white; font-family:verdana\"><b>");
+		printf("[%03d/%d] - CH13 Scans", day, year);
+		printf("</b></p>");
 		while(token != NULL){
-			printf("<li style=\"margin-bottom:10; margin-top:10\">%s</li>\n", token);
+
+			if(odd%2 == 0){
+				printf("<p style=\"margin:0; padding:8; background-color:#0063013b;\">\n");
+			}
+			else{
+				printf("<p style=\"margin:0; padding:8; background-color:#00630163\">\n");
+			}
+			
+			printf("%s", token);
+			printf("</p>\n");
 			token = strtok(NULL, "\n");
+			odd++;
 		}
-		printf("</ul>\n");
+		printf("</div>\n");
 
 		printf("</body>\n");
  	}
