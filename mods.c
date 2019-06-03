@@ -88,11 +88,11 @@ int main(void) {
 
    			//if(data != NULL){
 				if(sscanf(data,"m=%d", &uploaded) == 1 && uploaded == 1){
-					printf("<form action=\"modhandler.cgi?delete=1\">\n");
+					//printf("<form action=\"modhandler.cgi?delete=1\">\n");
 					printf("<div style=\"margin: 10; margin-top: 20;\">\n");
-			   		printf("<center><button>Remove Module</button></center>\n");
+			   		printf("<center><a href=\"modhandler.cgi?delete=1\"><button>Remove Module</button></center>\n");
 			   		printf("</div>\n");
-			   		printf("</form>\n");
+			   		//printf("</form>\n");
 				}
 
 				else{

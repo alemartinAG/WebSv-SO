@@ -78,7 +78,7 @@ int main(void) {
 		token = strtok(buffer, "\n");
 
 		int odd = 1;
-		printf("<div style=\"margin-right:15%; margin-left:20px\">\n");
+		printf("<div style=\"margin-right:15%; margin-left:20px; margin-top:20px; \">\n");
 		printf("<p style=\"font-size:140%%; background-color:#041d04bf; margin:0; padding:12; color:white; font-family:verdana\"><b>");
 		printf("[%03d/%d] - CH13 Scans", day, year);
 		printf("</b></p>");

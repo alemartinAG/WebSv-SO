@@ -5,11 +5,19 @@
 
 #define SIZE 2048
 
-bool checkUpload();
+#define ERROR 3
+#define NOT 2
+#define OK  1
+
+int checkUpload();
 
 int main(void) {
 
 	char buffer[SIZE];
+
+	char *data;
+	int remove = 0;
+	data = getenv("QUERY_STRING");
 
 	printf("Content-type: text/html; charset=UTF-8\n\n");
 	printf("<html>\n");
@@ -22,8 +30,8 @@ int main(void) {
 	
 	
 	/* Chequeo si se subio el modulo o si lo tengo que remover */
-
-	if(checkUpload()){
+	int result = checkUpload();
+	if(result == OK){
 
 		printf("<center><p style=\"color:green; font-size:x-large; font-family:arial\">Module Succesfully Uploaded</p></center>\n");
 
@@ -35,10 +43,12 @@ int main(void) {
 	}
 	else{
 
-		system("sudo rmmod decrypter");
-
+		if(result == NOT && sscanf(data,"delete=%d", &remove) == 1 && remove == 1){
+			system("sudo rmmod decrypter");
+			printf("<center><p style=\"color:red; font-size:x-large; font-family:arial\">Module Succesfully Removed</p></center>\n");
+		}
+		
 		/* Vuelvo a la lista de modulos */
-		printf("<center><p style=\"color:red; font-size:x-large; font-family:arial\">Module Succesfully Removed</p></center>\n");
 		printf("<div style=\"margin: 10; margin-top: 20;\">\n");
    		printf("<center><a href=\"mods.cgi\"><button>Accept</button></a></center>\n");
    		printf("</div>\n");
@@ -51,7 +61,7 @@ int main(void) {
 	return 1;
 }
 
-bool checkUpload(){
+int checkUpload(){
 	
 	char *request_method;
 	char *content_length;
@@ -68,13 +78,13 @@ bool checkUpload(){
 
 	if(request_method == NULL){
 		printf("<center>Error: Unknown cgi-bin request</center>\n");
-		return false;
+		return ERROR;
 	}
 
 	/* This only handles POST */ 
 	if(strcmp(request_method, "POST") != 0){
 		//printf("<center>Error: %s request method not supported</center>\n", request_method);
-		return false;
+		return NOT;
 	}
 
 	//printf("<center>CONTENT_TYPE: %s</center>\n", content_type);
@@ -87,7 +97,7 @@ bool checkUpload(){
 
     // Reading file
     data_read = fread((void *)buffer, 1, data_len, stdin);
-    printf("<p>Read %d bytes (of %d) from stdin</p>\n", data_read, data_len);
+    //printf("<p>Read %d bytes (of %d) from stdin</p>\n", data_read, data_len);
 
 	/* Get the boundary marker for start/end of the data */
 	pchar = strtok(buffer, "\r\n");
@@ -105,7 +115,7 @@ bool checkUpload(){
 
 	    free(boundary);
 	    free(buffer);
-	    return false;
+	    return ERROR;
 	}
 
 	/* Move the pointer past the end of headers marker */
@@ -131,7 +141,7 @@ bool checkUpload(){
 	    
 	    free(boundary);
 	    free(buffer);
-	    return false;
+	    return ERROR;
 	}
 
 	/* Write the data to a file */
@@ -143,18 +153,25 @@ bool checkUpload(){
 	    
 	    free(boundary); 
     	free(buffer);
-	 	return false;
+	 	return ERROR;
 	} 
-	else{
-	    fwrite(pstart, 1, pend-pstart, fp);
-	    fclose(fp);
-	    //printf("<p>Data Written to file</p>\n");
+    
+    fwrite(pstart, 1, pend-pstart, fp);
+    fclose(fp);
 
-	    system("sudo insmod module/umodule.ko");
-	}
+    memset(buffer, 0, data_len);
+    system("sudo insmod module/umodule.ko 2> error.txt");
+    fp = fopen("error.txt", "r");
+    fread(buffer, sizeof(char), data_len, fp);
+
+    if(strlen(buffer) > 1){
+    	printf("<center><p style=\"color:red; font-size:x-large; font-family:arial\">Error Cargando Modulo</p></center>\n");
+    	printf("<center><p style=\"color:red; \">%s</p></center>\n", buffer);
+    	return ERROR;
+    }
 
     free(boundary); 
     free(buffer);
 
-    return true;
+    return OK;
 }

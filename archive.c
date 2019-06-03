@@ -13,10 +13,10 @@ int main(void) {
 	printf("<body>\n");
 		printf("<h1>Obtener Archivo</h1>\n");
 
-	printf("<form action=\"fetch.cgi\">\n");
-		printf("<div><label>Año: <input name=\"ano\" size=\"5\"></label></div>\n");
-		printf("<div><label>Día: <input name=\"dia\" size=\"5\"></label></div>\n");
-		printf("<div><input type=\"submit\" value=\"Buscar\"></div>\n");
+	printf("<form style=\"margin-left:25px\" action=\"fetch.cgi\">\n");
+		printf("<div style=\"margin-top:15px\"><label>Año: <input name=\"ano\" size=\"5\"></label></div>\n");
+		printf("<div style=\"margin-top:15px\"><label>Día: <input name=\"dia\" size=\"5\"></label></div>\n");
+		printf("<div style=\"margin-top:15px\"><input type=\"submit\" value=\"Buscar\"></div>\n");
 	printf("</form>\n");
 
 	printf("</body>\n");
