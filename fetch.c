@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define SIZE 2048
+#define SIZE 102400
 
 int main(void) {
 
@@ -55,15 +55,18 @@ int main(void) {
 
 		//printf("<h1>Archivos disponibles de Goes 16 en AWS</h1>\n");
 
-		char * command;
-		command = calloc(256, sizeof(char));
-		strcpy(command, "echo nein");
-		snprintf(command, 250, "aws s3 ls --recursive noaa-goes16/ABI-L2-CMIPF/%d/%03d/ | grep M3C13 > list.txt", year, day);
+		/* Corro el comando y lo guardo en el archivo list.txt */
+
+		char * command = calloc(256, sizeof(char));
+		strcpy(command, " ");
+		snprintf(command, 250, "aws s3 ls --no-sign-request --recursive noaa-goes16/ABI-L2-CMIPF/%d/%03d/ | grep M3C13 > list.txt", year, day);
 		system(command);
 
 		free(command);
 
 		char buffer[SIZE];
+
+		/* Abro el archivo y lo parseo por lineas */
 
 		FILE *fp;
 		fp = fopen("list.txt", "r");
@@ -71,14 +74,12 @@ int main(void) {
 		fclose(fp);
 		system("rm list.txt");
 
-		//printf("<p>%s</p>\n", buffer);
-
 		char * token;
 
 		token = strtok(buffer, "\n");
 
 		int odd = 1;
-		printf("<div style=\"margin-right:15%; margin-left:20px; margin-top:20px; \">\n");
+		printf("<div style=\"margin-right:15%%; margin-left:20px; margin-top:20px; \">\n");
 		printf("<p style=\"font-size:140%%; background-color:#041d04bf; margin:0; padding:12; color:white; font-family:verdana\"><b>");
 		printf("[%03d/%d] - CH13 Scans", day, year);
 		printf("</b></p>");

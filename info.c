@@ -3,6 +3,9 @@
 #include <string.h>
 #include <time.h>
 
+#define SIZE 3500
+#define MAX_PATH 64
+
 int main(void) {
 	
 	printf("Content-type: text/html; charset=UTF-8\n\n");
@@ -19,16 +22,17 @@ int main(void) {
 	printf("<p>");
 		FILE *fp;
 		fp = fopen("/proc/uptime", "r");
-		char buff[3500];
-		fread(buff, 3500, 1, fp);
+		char buff[SIZE];
+		fread(buff, SIZE, 1, fp);
 		fclose(fp);
 
 		long uptime;
 		char *ptr;
 		uptime = strtol(buff, &ptr, 10);
 
-		memset(buff, '\0', 3500);
-	    sprintf(buff, "Uptime: %02dD %02d:%02d:%02d", (uptime / 60 / 60 / 24), (uptime / 60 / 60 % 24), (uptime / 60 % 60), (uptime % 60));
+		memset(buff, '\0', SIZE-1);
+		
+	    sprintf(buff, "Uptime: %02ldD %02ld:%02ld:%02ld", (uptime / 60 / 60 / 24), (uptime / 60 / 60 % 24), (uptime / 60 % 60), (uptime % 60));
 
 		printf("%s", buff);
 	printf("</p>\n");
@@ -46,7 +50,7 @@ int main(void) {
 	printf("<h4 style=\"background-color:#60a3f961;\"> -Memoria- </h4>\n");
 	printf("<p>");
 		fp = fopen("/proc/meminfo", "r");
-		fread(buff, 3500, 1, fp);
+		fread(buff, SIZE, 1, fp);
 		fclose(fp);
 
 		char * token;
@@ -65,33 +69,44 @@ int main(void) {
 		
 	printf("</ul>\n");
 
-	/* Obtengo meminfo */
+	/* Obtengo cpu */
 	printf("<h4 style=\"background-color:#60a3f961;\"> -CPU- </h4>\n");
 	printf("<p>");
 
-	    system("ps -A --format %cpu > ps.txt");
+	    system("ps -A --format %cpu > /home/ale/Documents/web-server/ps.txt");
+
+	    /*char path[MAX_PATH];
+		strcpy(path, getenv("HOME"));
+		strcat(path, "Documents/web-server/ps.txt");*/
 		
-		fp = fopen("/home/pi/Desktop/TP2/ps.txt", "r");
+		//fp = fopen(path, "r");
+		fp = fopen("/home/ale/Documents/web-server", "r");
 
-		memset(buff, '\0', 3500);
-		fread(buff, 3500, 1, fp);
-		fclose(fp);
 
-		token = strtok(buff, "\n");
-		float proceso, total;
-		total = 0.0;
-		while(token != NULL){
-
-			if(sscanf(token,"%f", &proceso) == 1){
-				total += proceso;
-			}
-			
-			token = strtok(NULL, "\n");
+		if(fp == NULL){
+			printf("PORQUERIA\n");
 		}
+		else{
+			memset(buff, '\0', SIZE);
+			fread(buff, SIZE, 1, fp);
+			fclose(fp);
 
-		printf("%% %.2f\n", total);
+			token = strtok(buff, "\n");
+			float proceso, total;
+			total = 0.0;
+			while(token != NULL){
 
-		system("rm ps.txt");
+				if(sscanf(token,"%f", &proceso) == 1){
+					total += proceso;
+				}
+				
+				token = strtok(NULL, "\n");
+			}
+
+			printf("%% %.2f\n", total);
+
+			//system("rm $HOME/Documents/web-server/ps.txt");
+		}
 	
 	printf("</p>\n");
 	

@@ -13,8 +13,6 @@ int checkUpload();
 
 int main(void) {
 
-	char buffer[SIZE];
-
 	char *data;
 	int remove = 0;
 	data = getenv("QUERY_STRING");
@@ -65,29 +63,24 @@ int checkUpload(){
 	
 	char *request_method;
 	char *content_length;
-	char *content_type;
 	char *boundary, *pchar;
 	char *pstart, *pend;
 
-	int data_len, data_read, i,found;
+	int data_len,found;
 	char *buffer; 
 
 	request_method = getenv("REQUEST_METHOD");
 	content_length = getenv("CONTENT_LENGTH");
-	content_type = getenv("CONTENT_TYPE");
 
 	if(request_method == NULL){
 		printf("<center>Error: Unknown cgi-bin request</center>\n");
 		return ERROR;
 	}
 
-	/* This only handles POST */ 
+	/* This only handles POST */
 	if(strcmp(request_method, "POST") != 0){
-		//printf("<center>Error: %s request method not supported</center>\n", request_method);
 		return NOT;
 	}
-
-	//printf("<center>CONTENT_TYPE: %s</center>\n", content_type);
 
 	/* The total length of what the client sent upstream */
     data_len = atoi(content_length);
@@ -96,8 +89,7 @@ int checkUpload(){
     buffer = (char *)malloc(data_len);
 
     // Reading file
-    data_read = fread((void *)buffer, 1, data_len, stdin);
-    //printf("<p>Read %d bytes (of %d) from stdin</p>\n", data_read, data_len);
+    fread((void *)buffer, 1, data_len, stdin);
 
 	/* Get the boundary marker for start/end of the data */
 	pchar = strtok(buffer, "\r\n");
@@ -109,7 +101,7 @@ int checkUpload(){
 	pstart = strstr(buffer+strlen(boundary)+1, datastart);
 	if(pstart == NULL){
 	    printf("<p>ERROR - BAD DATA START</p>\n");
-	    for(i=0; i<10; i++){
+	    for(int i=0; i<10; i++){
 	          printf("%c ", *(buffer+strlen(boundary)+i));
 	    }
 
@@ -120,7 +112,6 @@ int checkUpload(){
 
 	/* Move the pointer past the end of headers marker */
 	pstart+=strlen(datastart);
-
 
 	/* Find the data end
 	Can't use strstr here as the data may be binary */
@@ -163,12 +154,16 @@ int checkUpload(){
     system("sudo insmod module/umodule.ko 2> error.txt");
     fp = fopen("error.txt", "r");
     fread(buffer, sizeof(char), data_len, fp);
+    fclose(fp);
 
     if(strlen(buffer) > 1){
     	printf("<center><p style=\"color:red; font-size:x-large; font-family:arial\">Error Cargando Modulo</p></center>\n");
     	printf("<center><p style=\"color:red; \">%s</p></center>\n", buffer);
     	return ERROR;
     }
+
+    system("rm error.txt");
+
 
     free(boundary); 
     free(buffer);
