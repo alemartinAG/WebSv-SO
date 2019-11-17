@@ -3,17 +3,24 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define SIZE 2048
+#define SIZE 1024000
 
 bool checkUpload();
 
 int main(void) {
 
-	char buffer[SIZE];
+	char * buffer = malloc(SIZE);
+	char * data = malloc(1024);
 
-	char *data;
 	int uploaded = 0;
-	data = getenv("QUERY_STRING");
+	
+	if(getenv("QUERY_STRING") == NULL){
+		strcpy(data, "there is no query");
+	}
+	else{
+		strcpy(data, (char *) getenv("QUERY_STRING"));
+		strcat(data, "\n");
+	}
 
 	printf("Content-type: text/html; charset=UTF-8\n\n");
 	printf("<html>\n");
@@ -23,7 +30,6 @@ int main(void) {
 	printf("</head>\n");
 
 	printf("<body>\n");
-		//printf("<h1>Modulos</h1>\n");
 
 		system("lsmod > lsmod.txt");
 
@@ -36,12 +42,12 @@ int main(void) {
 
 		FILE *fp;
 		fp = fopen("lsmod.txt", "r");
-		fread(buffer, SIZE, 1, fp);
+		fread(buffer, sizeof(char), SIZE, fp);
 		fclose(fp);
+		
 		system("rm lsmod.txt");
 
 		/* Parseo */
-
 		char * end_str;
 		char * token;
    		
@@ -70,7 +76,7 @@ int main(void) {
    				strcat(line, "</span>");
 
    				token2 = strtok_r(NULL, " ", &end_token);
-   				index++;
+   				index = 2;
    			}
 
    			// Evita que se imprima basura al final 
@@ -90,11 +96,11 @@ int main(void) {
 	   		para subir el modulo */
 
 		if(sscanf(data,"m=%d", &uploaded) == 1 && uploaded == 1){
+		//if(uploaded == 1){
 			printf("<div style=\"margin: 10; margin-top: 20;\">\n");
 	   		printf("<center><a href=\"modhandler.cgi?delete=1\"><button>Remove Module</button></center>\n");
 	   		printf("</div>\n");
 		}
-
 		else{
 			printf("<form style=\"margin-top: 40; margin-left: 20\" method=\"POST\" enctype=\"multipart/form-data\" action=\"modhandler.cgi\">\n");
 	   		printf("<div style=\"margin: 10;\">\n");
@@ -106,6 +112,9 @@ int main(void) {
 	   		printf("</div>\n");
 	   		printf("</form>");
 		}
+
+	free(buffer);
+	free(data);
 
 	printf("</body>\n");
 

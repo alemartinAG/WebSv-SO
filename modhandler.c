@@ -3,19 +3,29 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define SIZE 2048
+#define SIZE 128
 
 #define ERROR 3
 #define NOT 2
 #define OK  1
 
+#define MOD_FILE "module/umodule.ko"
+#define NAM_FILE "module/name.txt"
+#define ERR_FILE "error.txt"
+
 int checkUpload();
+char * getModName();
 
 int main(void) {
 
-	char *data;
+	char * data = malloc(SIZE);
+	char * sysCmd = malloc(SIZE);
+	
 	int remove = 0;
-	data = getenv("QUERY_STRING");
+	
+	if(getenv("QUERY_STRING") != NULL){
+		strcpy(data, getenv("QUERY_STRING"));
+	}
 
 	printf("Content-type: text/html; charset=UTF-8\n\n");
 	printf("<html>\n");
@@ -31,7 +41,11 @@ int main(void) {
 	int result = checkUpload();
 	if(result == OK){
 
-		printf("<center><p style=\"color:green; font-size:x-large; font-family:arial\">Module Succesfully Uploaded</p></center>\n");
+		char * module_name = getModName();
+
+		printf("<center><p style=\"color:green; font-size:x-large; font-family:arial\">Module \' %s\' Succesfully Uploaded</p></center>\n", module_name);
+
+		free(sysCmd);
 
 		/* Vuelvo a la lista de modulos */
 		printf("<div style=\"margin: 10; margin-top: 20;\">\n");
@@ -42,8 +56,16 @@ int main(void) {
 	else{
 
 		if(result == NOT && sscanf(data,"delete=%d", &remove) == 1 && remove == 1){
-			system("sudo rmmod decrypter");
-			printf("<center><p style=\"color:red; font-size:x-large; font-family:arial\">Module Succesfully Removed</p></center>\n");
+
+			char * module_name = getModName();
+			sprintf(sysCmd, "sudo rmmod %s", module_name);
+
+			system(sysCmd);
+
+			printf("<center><p style=\"color:red; font-size:x-large; font-family:arial\">Module: \' %s\' Succesfully Removed</p></center>\n", module_name);
+
+			free(module_name);
+			free(sysCmd);
 		}
 		
 		/* Vuelvo a la lista de modulos */
@@ -59,6 +81,30 @@ int main(void) {
 	return 1;
 }
 
+char * getModName(){
+
+	char * mod_name = malloc(SIZE);
+	char * buffer = malloc(SIZE);
+
+	FILE *fp;
+	fp = fopen(NAM_FILE, "r");
+	fread(buffer, sizeof(char), SIZE, fp);
+	fclose(fp);
+
+	char *token;
+	token = strtok(buffer, " ");
+
+	while(token != NULL){
+		strcpy(mod_name, token);
+		token = strtok(NULL, " ");
+	}
+
+	free(buffer);
+
+	return mod_name;
+
+}
+
 int checkUpload(){
 	
 	char *request_method;
@@ -68,6 +114,9 @@ int checkUpload(){
 
 	int data_len,found;
 	char *buffer; 
+
+	char * sysCmd = malloc(SIZE);
+
 
 	request_method = getenv("REQUEST_METHOD");
 	content_length = getenv("CONTENT_LENGTH");
@@ -137,10 +186,10 @@ int checkUpload(){
 
 	/* Write the data to a file */
 	FILE *fp;
-	fp = fopen("module/umodule.ko", "wb");
+	fp = fopen(MOD_FILE, "wb");
 	
 	if(fp == NULL){
-	    printf("<p>Error opening output file for write</p>\n");
+	    printf("<p>Error opening output file</p>\n");
 	    
 	    free(boundary); 
     	free(buffer);
@@ -151,8 +200,12 @@ int checkUpload(){
     fclose(fp);
 
     memset(buffer, 0, data_len);
-    system("sudo insmod module/umodule.ko 2> error.txt");
-    fp = fopen("error.txt", "r");
+
+    sprintf(sysCmd, "sudo insmod %s 2> %s", MOD_FILE, ERR_FILE);
+
+    system(sysCmd);
+    
+    fp = fopen(ERR_FILE, "r");
     fread(buffer, sizeof(char), data_len, fp);
     fclose(fp);
 
@@ -162,11 +215,16 @@ int checkUpload(){
     	return ERROR;
     }
 
-    system("rm error.txt");
+    sprintf(sysCmd, "rm %s", ERR_FILE);
+    system(sysCmd);
+
+    sprintf(sysCmd, "modinfo %s | awk \'/^name/{print $0}\' > %s", MOD_FILE, NAM_FILE);
+    system(sysCmd);
 
 
     free(boundary); 
     free(buffer);
+    free(sysCmd);
 
     return OK;
 }
